@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH — Gestión de Empleados</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary:       #3B82F6;
+            --primary-dark:  #2563EB;
+            --primary-light: #EFF6FF;
+            --success:       #22C55E;
+            --success-light: #F0FDF4;
+            --danger:        #EF4444;
+            --danger-light:  #FEF2F2;
+            --warning:       #F59E0B;
+            --surface:       #FFFFFF;
+            --bg:            #F8FAFC;
+            --border:        #E2E8F0;
+            --border-strong: #CBD5E1;
+            --text:          #1E293B;
+            --text-muted:    #64748B;
+            --text-light:    #94A3B8;
+            --header-bg:     #1E3A5F;
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+            --shadow-md:     0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+            --radius:        6px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: var(--header-bg);
+            color: #fff;
+            padding: 0 24px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,.2);
+        }
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: .3px;
+        }
+        .topbar-brand .icon {
+            width: 32px; height: 32px;
+            background: var(--primary);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+        }
+        .topbar-right { font-size: .8rem; color: #94a3b8; }
+
+        /* ── LAYOUT ── */
+        .page { max-width: 1280px; margin: 0 auto; padding: 24px 20px; display: grid; gap: 20px; }
+
+        /* ── PANEL ── */
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+        .panel-header {
+            background: #F1F5F9;
+            border-bottom: 1px solid var(--border);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .panel-header-title {
+            font-weight: 600;
+            font-size: .9rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel-body { padding: 20px 18px; }
+
+        /* ── FORM ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .field { display: flex; flex-direction: column; gap: 5px; }
+        .field label { font-size: .8rem; font-weight: 600; color: var(--text-muted); }
+        .field label .required { color: var(--danger); margin-left: 2px; }
+        .field input {
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius);
+            padding: 8px 12px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: .875rem;
+            color: var(--text);
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+            width: 100%;
+        }
+        .field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+        .field input.error { border-color: var(--danger); }
+
+        .form-footer {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ── BUTTONS ── */
+        .p-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            border: 1px solid transparent;
+            font-family: 'Open Sans', sans-serif;
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s, box-shadow .15s, transform .1s;
+        }
+        .p-btn:active { transform: scale(.98); }
+        .p-btn:disabled { opacity: .55; cursor: not-allowed; }
+        .p-btn-primary  { background: var(--primary); color: #fff; border-color: var(--primary-dark); }
+        .p-btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+        .p-btn-secondary { background: #fff; color: var(--text-muted); border-color: var(--border-strong); }
+        .p-btn-secondary:hover:not(:disabled) { background: #F8FAFC; }
+        .p-btn-danger  { background: #fff; color: var(--danger); border-color: #FECACA; }
+        .p-btn-danger:hover:not(:disabled)  { background: var(--danger-light); }
+        .p-btn-warning { background: #fff; color: var(--warning); border-color: #FDE68A; }
+        .p-btn-warning:hover:not(:disabled) { background: #FFFBEB; }
+        .p-btn-info    { background: #fff; color: var(--primary); border-color: #BFDBFE; }
+        .p-btn-info:hover:not(:disabled)    { background: var(--primary-light); }
+        .p-btn-sm { padding: 5px 12px; font-size: .8rem; }
+
+        /* ── DATATABLE ── */
+        .datatable { width: 100%; border-collapse: collapse; }
+        .datatable thead tr { background: #F8FAFC; border-bottom: 2px solid var(--border); }
+        .datatable th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: .78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            white-space: nowrap;
+        }
+        .datatable td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .datatable tbody tr:last-child td { border-bottom: none; }
+        .datatable tbody tr:hover { background: #F8FAFC; }
+
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+        .badge-blue  { background: #DBEAFE; color: #1D4ED8; }
+
+        .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        /* ── STATS ── */
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .stat-icon {
+            width: 44px; height: 44px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .stat-icon.blue   { background: #DBEAFE; }
+        .stat-icon.green  { background: #DCFCE7; }
+        .stat-icon.amber  { background: #FEF3C7; }
+        .stat-icon.purple { background: #EDE9FE; }
+        .stat-label { font-size: .75rem; color: var(--text-muted); margin-bottom: 2px; }
+        .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--text); line-height: 1; }
+
+        /* ── PRESTACIONES ── */
+        #prestaciones-section { display: none; }
+        .prestaciones-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+        .pres-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; background: #FAFBFC; }
+        .pres-card-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin-bottom: 6px; }
+        .pres-card-value { font-size: 1.35rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+        .pres-card-value.blue  { color: var(--primary); }
+        .pres-card-value.green { color: var(--success); }
+        .pres-card-sub { font-size: .75rem; color: var(--text-light); margin-top: 4px; }
+        .pres-note {
+            margin-top: 14px;
+            padding: 10px 14px;
+            background: #FFFBEB;
+            border: 1px solid #FDE68A;
+            border-radius: var(--radius);
+            font-size: .78rem;
+            color: #92400E;
+        }
+        .empleado-info-bar {
+            background: var(--primary-light);
+            border: 1px solid #BFDBFE;
+            border-radius: var(--radius);
+            padding: 10px 16px;
+            margin-bottom: 16px;
+            font-size: .85rem;
+            color: #1D4ED8;
+            font-weight: 600;
+        }
+
+        /* ── EMPTY ── */
+        .empty-row td { text-align: center; padding: 40px !important; color: var(--text-muted); font-size: .9rem; }
+
+        /* ── TOAST ── */
+        #toast {
+            position: fixed; bottom: 24px; right: 24px;
+            padding: 12px 18px;
+            border-radius: var(--radius);
+            font-size: .875rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity .25s, transform .25s;
+            pointer-events: none;
+            z-index: 9999;
+            max-width: 320px;
+            border-left: 4px solid transparent;
+        }
+        #toast.show    { opacity: 1; transform: translateY(0); }
+        #toast.success { background: var(--success-light); color: #15803D; border-left-color: var(--success); }
+        #toast.error   { background: var(--danger-light);  color: #B91C1C; border-left-color: var(--danger);  }
+        #toast.info    { background: var(--primary-light); color: #1D4ED8; border-left-color: var(--primary); }
+
+        /* ── SPINNER ── */
+        .spinner {
+            display: inline-block; width: 13px; height: 13px;
+            border: 2px solid #CBD5E1; border-top-color: var(--primary);
+            border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 640px) {
+            .topbar-right { display: none; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-brand">
+        <div class="icon">👥</div>
+        Recursos Humanos
+    </div>
+    <div class="topbar-right">Sistema de Gestión de Personal</div>
+</div>
+
+<div class="page">
+
+    <!-- STATS -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon blue">👤</div>
+            <div><div class="stat-label">Empleados Activos</div><div class="stat-value" id="stat-total">—</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">💰</div>
+            <div><div class="stat-label">Nómina Mensual</div><div class="stat-value" id="stat-nomina">—</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon amber">📊</div>
+            <div><div class="stat-label">Salario Promedio</div><div class="stat-value" id="stat-promedio">—</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon purple">🏢</div>
+            <div><div class="stat-label">Antigüedad Prom.</div><div class="stat-value" id="stat-antiguedad">—</div></div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-header-title">📋 <span id="form-title">Alta de Empleado</span></div>
+        </div>
+        <div class="panel-body">
+            <div class="form-grid">
+                <div class="field">
+                    <label>Nombre <span class="required">*</span></label>
+                    <input id="f-nombre" type="text" placeholder="Ej: Juan">
+                </div>
+                <div class="field">
+                    <label>Apellido <span class="required">*</span></label>
+                    <input id="f-apellido" type="text" placeholder="Ej: Pérez García">
+                </div>
+                <div class="field">
+                    <label>Correo Electrónico <span class="required">*</span></label>
+                    <input id="f-email" type="email" placeholder="juan@empresa.com">
+                </div>
+                <div class="field">
+                    <label>Puesto <span class="required">*</span></label>
+                    <input id="f-puesto" type="text" placeholder="Ej: Desarrollador Backend">
+                </div>
+                <div class="field">
+                    <label>Salario Mensual ($) <span class="required">*</span></label>
+                    <input id="f-salario" type="number" placeholder="Ej: 18000" min="1">
+                </div>
+                <div class="field">
+                    <label>Fecha de Ingreso <span class="required">*</span></label>
+                    <input id="f-fecha" type="date">
+                </div>
+            </div>
+            <div class="form-footer">
+                <button class="p-btn p-btn-primary" onclick="guardarEmpleado()" id="btn-guardar">💾 Guardar Empleado</button>
+                <button class="p-btn p-btn-secondary" onclick="limpiarForm()" id="btn-cancelar" style="display:none">✕ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-header-title">📊 Listado de Empleados Activos</div>
+            <button class="p-btn p-btn-secondary p-btn-sm" onclick="cargarEmpleados()">🔄 Actualizar</button>
+        </div>
+        <div style="overflow-x:auto">
+            <table class="datatable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Puesto</th>
+                        <th>Correo</th>
+                        <th>Salario Mensual</th>
+                        <th>Fecha Ingreso</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body">
+                    <tr class="empty-row"><td colspan="7"><span class="spinner"></span> Cargando empleados...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PRESTACIONES -->
+    <div class="panel" id="prestaciones-section">
+        <div class="panel-header">
+            <div class="panel-header-title">🧮 Resumen de Prestaciones de Ley</div>
+            <button class="p-btn p-btn-secondary p-btn-sm" onclick="cerrarPrestaciones()">✕ Cerrar</button>
+        </div>
+        <div class="panel-body">
+            <div class="empleado-info-bar">👤 <span id="prestaciones-nombre">—</span></div>
+            <div class="prestaciones-grid" id="prestaciones-grid"></div>
+            <div class="pres-note">
+                ⚠️ Cálculos basados en la <strong>Ley Federal del Trabajo</strong>. El aguinaldo se muestra proporcional a los días trabajados en el año en curso.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+    // const API = 'http://localhost:8080/api/v1/empleados';
+    const API = '/api/v1/empleados';
+    let editandoId = null;
+    let empleadosCache = [];
+
+    const moneda = v => '$' + Number(v).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fechaFmt = v => {
+        const [y, m, d] = v.split('-');
+        const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        return `${d} ${meses[parseInt(m)-1]} ${y}`;
+    };
+    const antiguedadAnios = fechaIngreso => {
+        const hoy = new Date(), ing = new Date(fechaIngreso + 'T12:00:00');
+        let a = hoy.getFullYear() - ing.getFullYear();
+        const m = hoy.getMonth() - ing.getMonth();
+        if (m < 0 || (m === 0 && hoy.getDate() < ing.getDate())) a--;
+        return a;
+    };
+
+    function toast(msg, type = 'success') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `show ${type}`;
+        setTimeout(() => { t.className = ''; }, 3500);
+    }
+
+    function actualizarStats(data) {
+        document.getElementById('stat-total').textContent = data.length;
+        const nomina = data.reduce((s, e) => s + parseFloat(e.salarioMensual), 0);
+        document.getElementById('stat-nomina').textContent = moneda(nomina);
+        document.getElementById('stat-promedio').textContent = moneda(data.length ? nomina / data.length : 0);
+        const promAntig = data.length
+            ? (data.reduce((s, e) => s + antiguedadAnios(e.fechaIngreso), 0) / data.length).toFixed(1)
+            : 0;
+        document.getElementById('stat-antiguedad').textContent = promAntig + ' años';
+    }
+
+    async function cargarEmpleados() {
+        const tbody = document.getElementById('tabla-body');
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="7"><span class="spinner"></span> Cargando...</td></tr>';
+        try {
+            const res  = await fetch(API);
+            const data = await res.json();
+            empleadosCache = data;
+            actualizarStats(data);
+            if (!data.length) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No hay empleados registrados.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(e => `
+                <tr>
+                    <td style="color:var(--text-muted);font-size:.8rem">${e.id}</td>
+                    <td><strong>${e.nombre} ${e.apellido}</strong></td>
+                    <td><span class="badge badge-blue">${e.puesto}</span></td>
+                    <td style="color:var(--text-muted)">${e.email}</td>
+                    <td><strong>${moneda(e.salarioMensual)}</strong></td>
+                    <td style="color:var(--text-muted)">${fechaFmt(e.fechaIngreso)}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="p-btn p-btn-info p-btn-sm"    onclick="verPrestaciones(${e.id}, '${e.nombre} ${e.apellido}')">🧮 Prestaciones</button>
+                            <button class="p-btn p-btn-warning p-btn-sm" onclick="editarEmpleado(${e.id})">✏️ Editar</button>
+                            <button class="p-btn p-btn-danger p-btn-sm"  onclick="eliminarEmpleado(${e.id}, '${e.nombre} ${e.apellido}')">🗑️ Eliminar</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        } catch {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="7" style="color:var(--danger)">❌ Error al conectar con la API. Verifica que el servidor esté corriendo.</td></tr>';
+        }
+    }
+
+    async function guardarEmpleado() {
+        const ids = ['f-nombre','f-apellido','f-email','f-puesto','f-salario','f-fecha'];
+        ids.forEach(id => document.getElementById(id).classList.remove('error'));
+
+        const body = {
+            nombre:         document.getElementById('f-nombre').value.trim(),
+            apellido:       document.getElementById('f-apellido').value.trim(),
+            email:          document.getElementById('f-email').value.trim(),
+            puesto:         document.getElementById('f-puesto').value.trim(),
+            salarioMensual: parseFloat(document.getElementById('f-salario').value),
+            fechaIngreso:   document.getElementById('f-fecha').value,
+        };
+
+        let valido = true;
+        if (!body.nombre)       { document.getElementById('f-nombre').classList.add('error');   valido = false; }
+        if (!body.apellido)     { document.getElementById('f-apellido').classList.add('error'); valido = false; }
+        if (!body.email)        { document.getElementById('f-email').classList.add('error');    valido = false; }
+        if (!body.puesto)       { document.getElementById('f-puesto').classList.add('error');   valido = false; }
+        if (!body.salarioMensual || body.salarioMensual <= 0) { document.getElementById('f-salario').classList.add('error'); valido = false; }
+        if (!body.fechaIngreso) { document.getElementById('f-fecha').classList.add('error');    valido = false; }
+        if (!valido) { toast('Completa todos los campos requeridos', 'error'); return; }
+
+        const btn = document.getElementById('btn-guardar');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Guardando...';
+
+        try {
+            const url    = editandoId ? `${API}/${editandoId}` : API;
+            const method = editandoId ? 'PUT' : 'POST';
+            const res    = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || `Error ${res.status}`); }
+            toast(editandoId ? '✓ Empleado actualizado correctamente' : '✓ Empleado registrado correctamente');
+            limpiarForm();
+            cargarEmpleados();
+        } catch (err) {
+            toast(err.message || 'Error al guardar el empleado', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = editandoId ? '💾 Actualizar Empleado' : '💾 Guardar Empleado';
+        }
+    }
+
+    function editarEmpleado(id) {
+        const emp = empleadosCache.find(e => e.id === id);
+        if (!emp) { toast('Empleado no encontrado', 'error'); return; }
+        editandoId = id;
+        document.getElementById('f-nombre').value   = emp.nombre;
+        document.getElementById('f-apellido').value = emp.apellido;
+        document.getElementById('f-email').value    = emp.email;
+        document.getElementById('f-puesto').value   = emp.puesto;
+        document.getElementById('f-salario').value  = emp.salarioMensual;
+        document.getElementById('f-fecha').value    = emp.fechaIngreso;
+        document.getElementById('form-title').textContent     = `Editar — ${emp.nombre} ${emp.apellido}`;
+        document.getElementById('btn-guardar').innerHTML      = '💾 Actualizar Empleado';
+        document.getElementById('btn-cancelar').style.display = 'inline-flex';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        toast(`Editando a ${emp.nombre} ${emp.apellido}`, 'info');
+    }
+
+    async function eliminarEmpleado(id, nombre) {
+        if (!confirm(`¿Confirma eliminar a ${nombre}?\n\nEsta acción realiza un borrado lógico.`)) return;
+        try {
+            const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error();
+            toast(`✓ ${nombre} eliminado correctamente`);
+            cargarEmpleados();
+            cerrarPrestaciones();
+        } catch { toast('Error al eliminar el empleado', 'error'); }
+    }
+
+    async function verPrestaciones(id, nombre) {
+        const section = document.getElementById('prestaciones-section');
+        section.style.display = 'block';
+        document.getElementById('prestaciones-nombre').textContent = nombre;
+        document.getElementById('prestaciones-grid').innerHTML = '<div style="color:var(--text-muted);padding:8px 0"><span class="spinner"></span> Calculando prestaciones...</div>';
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        try {
+            const res = await fetch(`${API}/${id}/prestaciones`);
+            if (!res.ok) throw new Error();
+            const d = await res.json();
+            document.getElementById('prestaciones-grid').innerHTML = `
+                <div class="pres-card">
+                    <div class="pres-card-label">Antigüedad</div>
+                    <div class="pres-card-value">${d.antiguedadAnios} años</div>
+                    <div class="pres-card-sub">Ingreso: ${fechaFmt(d.fechaIngreso)}</div>
+                </div>
+                <div class="pres-card">
+                    <div class="pres-card-label">Salario Diario</div>
+                    <div class="pres-card-value blue">${moneda(d.salarioDiario)}</div>
+                    <div class="pres-card-sub">Mensual: ${moneda(d.salarioMensual)}</div>
+                </div>
+                <div class="pres-card">
+                    <div class="pres-card-label">Días de Vacaciones</div>
+                    <div class="pres-card-value">${d.diasVacaciones} días</div>
+                    <div class="pres-card-sub">Según LFT — Año ${d.antiguedadAnios <= 1 ? 1 : d.antiguedadAnios}</div>
+                </div>
+                <div class="pres-card">
+                    <div class="pres-card-label">Aguinaldo</div>
+                    <div class="pres-card-value green">${moneda(d.aguinaldo)}</div>
+                    <div class="pres-card-sub">Proporcional al año en curso</div>
+                </div>
+                <div class="pres-card">
+                    <div class="pres-card-label">Prima Vacacional</div>
+                    <div class="pres-card-value green">${moneda(d.primaVacacional)}</div>
+                    <div class="pres-card-sub">25% sobre ${d.diasVacaciones} días</div>
+                </div>
+                <div class="pres-card">
+                    <div class="pres-card-label">Total Prestaciones</div>
+                    <div class="pres-card-value blue">${moneda(parseFloat(d.aguinaldo) + parseFloat(d.primaVacacional))}</div>
+                    <div class="pres-card-sub">Aguinaldo + Prima Vacacional</div>
+                </div>
+            `;
+        } catch {
+            document.getElementById('prestaciones-grid').innerHTML = '<div style="color:var(--danger)">❌ Error al calcular prestaciones.</div>';
+        }
+    }
+
+    function cerrarPrestaciones() {
+        document.getElementById('prestaciones-section').style.display = 'none';
+    }
+
+    function limpiarForm() {
+        editandoId = null;
+        ['f-nombre','f-apellido','f-email','f-puesto','f-salario','f-fecha']
+            .forEach(id => { document.getElementById(id).value = ''; document.getElementById(id).classList.remove('error'); });
+        document.getElementById('form-title').textContent       = 'Alta de Empleado';
+        document.getElementById('btn-guardar').innerHTML        = '💾 Guardar Empleado';
+        document.getElementById('btn-cancelar').style.display   = 'none';
+    }
+
+    cargarEmpleados();
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+info:
+  name: Crear empleado
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/api/v1/empleados
+  body:
+    type: json
+    data: |-
+      {
+          "nombre": "Veronica",
+          "apellido": "Gomez",
+          "email": "v.gomez@empresafantasma.com",
+          "puesto": "Intendente",
+          "salarioMensual": 8000,
+          "fechaIngreso": "2022-02-24"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

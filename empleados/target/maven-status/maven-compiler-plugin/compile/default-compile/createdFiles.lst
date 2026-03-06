@@ -1,3 +1,3 @@
-com\rh\empleados\model\Empleado.class
 com\rh\empleados\EmpleadosApplication.class
 com\rh\empleados\repository\EmpleadoRepository.class
+com\rh\empleados\model\Empleado.class

@@ -1,0 +1,26 @@
+info:
+  name: Actualizar empleado
+  type: http
+  seq: 3
+
+http:
+  method: PUT
+  url: http://localhost:8080/api/v1/empleados/1
+  body:
+    type: json
+    data: |-
+      {
+          "nombre": "Juan Carlos",
+          "apellido": "Perez",
+          "email": "juan@empresa.com",
+          "puesto": "Senior Desarrollador",
+          "salarioMensual": 18000,
+          "fechaIngreso": "2023-01-15"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
